@@ -21,7 +21,7 @@ help: ## Show this help
 # ─────────────────────────────────────────────────────────────
 
 probe: ## Probe hardware — writes hardware.json (no install)
-	@python3 00-setup/detect-hardware.py
+	@python 00-setup/detect-hardware.py
 
 setup: ## Install deps + build llama-cpp-python + download models (auto-detects OS)
 ifeq ($(OS),Darwin)

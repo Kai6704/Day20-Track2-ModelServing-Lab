@@ -4,9 +4,9 @@
 
 ---
 
-**Họ Tên:** _<Họ Tên>_
-**Cohort:** _<A20-K1 / A20-K2 / ...>_
-**Ngày submit:** _<YYYY-MM-DD>_
+**Họ Tên:** _Vương Hoàng Giang_
+**Cohort:** _<A20-K1>_
+**Ngày submit:** _<2026-05-06>_
 
 ---
 
@@ -14,18 +14,18 @@
 
 > Paste output của `python 00-setup/detect-hardware.py` vào đây, hoặc điền thủ công:
 
-- **OS:** _<macOS 14 / Windows 11 / Ubuntu 24.04 / ...>_
-- **CPU:** _<Apple M2 / Intel i7-12700H / AMD Ryzen 7 5800H / ...>_
-- **Cores:** _<physical / logical>_
-- **CPU extensions:** _<AVX2 / AVX-512 / NEON / —>_
-- **RAM:** _<GB>_
-- **Accelerator:** _<NVIDIA RTX 4060 8GB / Apple Metal / AMD ROCm / Vulkan / CPU only>_
-- **llama.cpp backend đã chọn:** _<CUDA / Metal / Vulkan / CPU>_
-- **Recommended model tier:** _<TinyLlama-1.1B / Qwen2.5-1.5B / Llama-3.2-3B / Qwen2.5-7B>_
+- **OS:** Windows 11
+- **CPU:** Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
+- **Cores:** 4 physical / 8 logical
+- **CPU extensions:** AVX2 (Không hiển thị trong script Windows, suy ra từ CPU i7)
+- **RAM:** 15.8 GB
+- **Accelerator:** NVIDIA GeForce MX130, 2048 MiB
+- **llama.cpp backend đã chọn:** CUDA
+- **Recommended model tier:** Qwen2.5-1.5B-Instruct (Q4_K_M)
 
 **Setup story** (≤ 80 chữ): những gì cần thay đổi để lab chạy được trên máy bạn (vd: dùng WSL2, install CUDA Toolkit, fall back sang Vulkan vì ROCm phiên bản kén, tắt antivirus để pip install nhanh hơn, v.v.):
 
-_Answer here._
+Setup lab trên Windows bằng môi trường PowerShell. Sử dụng script tự động để cài đặt prebuilt llama-cpp-python cho CPU. Máy nhận diện đúng phần cứng và tải phiên bản Qwen2.5-1.5B hợp lý với cấu hình RAM hiện tại. Không gặp lỗi mạng khi tải model.
 
 ---
 
@@ -34,13 +34,13 @@ _Answer here._
 > Paste bảng từ `benchmarks/01-quickstart-results.md` xuống đây (auto-generated bởi `python 01-llama-cpp-quickstart/benchmark.py`).
 
 | Model | Load (ms) | TTFT P50/P95 (ms) | TPOT P50/P95 (ms) | E2E P50/P95/P99 (ms) | Decode rate (tok/s) |
-|---|--:|--:|--:|--:|--:|
-| (Q4_K_M) | | | | | |
-| (Q2_K)   | | | | | |
+|---|---:|---:|---:|---:|---:|
+| qwen2.5-1.5b-instruct-q4_k_m.gguf | 1774 | 236 / 328 | 57.2 / 70.5 | 3824 / 4701 / 4704 | 17.5 |
+| qwen2.5-1.5b-instruct-q2_k.gguf | 770 | 371 / 433 | 54.4 / 69.8 | 3730 / 4831 / 5172 | 18.4 |
 
 **Một quan sát** (≤ 50 chữ): Q4_K_M vs Q2_K trên máy bạn — số liệu nói gì? Quality đáng đánh đổi không?
 
-_Answer here._
+Với GPU offload, Q4_K_M có tốc độ decode gần như tương đương Q2_K (17.5 vs 18.4 tok/s). Đáng ngạc nhiên là TTFT (thời gian ra token đầu) của Q4_K_M lại nhanh hơn đáng kể. Với chất lượng vượt trội và hiệu năng không thua kém, Q4_K_M là lựa chọn tốt hơn.
 
 ---
 
@@ -49,9 +49,9 @@ _Answer here._
 > Chạy 2 lần locust ở concurrency 10 và 50, paste tóm tắt bên dưới.
 
 | Concurrency | Total RPS | TTFB P50 (ms) | E2E P95 (ms) | E2E P99 (ms) | Failures |
-|--:|--:|--:|--:|--:|--:|
-| 10 | | | | | |
-| 50 | | | | | |
+|---:|---:|---:|---:|---:|---:|
+| 10 | 0.18 | 30000 | 49000 | 49000 | 0 |
+| 50 | 0.18 | 29000 | 48000 | 48000 | 0 |
 
 **KV-cache observation** (từ `record-metrics.py`): peak `llamacpp:kv_cache_usage_ratio` ở concurrency 50 = _<0.XX>_, nghĩa là …
 
@@ -61,20 +61,20 @@ _Answer here._
 
 ## 4. Track 03 — Milestone integration
 
-- **N16 (Cloud/IaC):** _<piece you connected — k3d cluster / GCP project / docker-compose / "stub: localhost only">_
-- **N17 (Data pipeline):** _<piece — Airflow DAG / batch job / "stub: in-memory dict">_
-- **N18 (Lakehouse):** _<piece — Delta Lake table / Iceberg / "stub: SQLite">_
-- **N19 (Vector + Feature Store):** _<piece — Qdrant index / Feast / "stub: TOY_DOCS">_
+- **N16 (Cloud/IaC):** stub: localhost only
+- **N17 (Data pipeline):** stub: in-memory dict
+- **N18 (Lakehouse):** stub: in-memory list
+- **N19 (Vector + Feature Store):** stub: TOY_DOCS
 
 **Nơi tốn nhiều ms nhất** trong pipeline (đo bằng `time.perf_counter` trong `pipeline.py`):
 
-- embed: _<ms>_
-- retrieve: _<ms>_
-- llama-server: _<ms>_
+- embed: 0.0 (stub)
+- retrieve: ~0.1
+- llama-server: ~16426.3
 
 **Reflection** (≤ 60 chữ): bottleneck nằm ở đâu? Có khớp với kỳ vọng không?
 
-_Answer here._
+Bottleneck hoàn toàn nằm ở phần gọi llama-server (tốn hàng nghìn ms), trong khi retrieve gần như bằng 0. Điều này hoàn toàn khớp với kỳ vọng vì inference LLM (decode token) luôn là phần compute-heavy và tốn thời gian nhất trong mọi RAG pipeline.
 
 ---
 
